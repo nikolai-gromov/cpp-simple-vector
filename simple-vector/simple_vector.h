@@ -93,10 +93,12 @@ public:
     }
 
     Type& operator[](size_t index) noexcept {
+        assert((!(index < size_)) == false);
         return items_[index];
     }
 
     const Type& operator[](size_t index) const noexcept {
+        assert((!(index < size_)) == false);
         return items_[index];
     }
 
@@ -133,7 +135,7 @@ public:
     void Reserve(size_t new_capacity) {
         if (new_capacity <= capacity_) return;
         ArrayPtr<Type> tmp(new_capacity);
-        std::copy(begin(), end(), tmp.Get());
+        std::move(begin(), end(), tmp.Get());
         capacity_ = new_capacity;
         items_.swap(tmp);
     }
@@ -144,6 +146,7 @@ public:
             for (auto it = &items_[new_size]; it != &items_[size_]; ++it) {
                 *it = Type{};
             }
+            size_ = new_size;
         } else {
             auto new_capacity = std::max(new_size, capacity_ * 2);
             ArrayPtr<Type> tmp(new_capacity);
@@ -151,21 +154,20 @@ public:
             for (auto it = &tmp[size_]; it != &tmp[new_size]; ++it) {
                 *(it) = std::move(Type{});
             }
+            size_ = new_size;
             capacity_ = new_capacity;
             items_.swap(tmp);
         }
-        size_ = new_size;
     }
 
     void PushBack(const Type& item) {
         if (size_ < capacity_) {
-            std::fill(end(), end() + 1, item);
+            items_[size_] = item;
         } else {
             auto new_capacity = std::max(size_t(1), capacity_ * 2);
             ArrayPtr<Type> tmp(new_capacity);
             std::copy(begin(), end(), tmp.Get());
-            auto it_end = tmp.Get() + std::distance(begin(), end());
-            std::fill(it_end, it_end + 1, item);
+            tmp[size_] = item;
             capacity_ = new_capacity;
             items_.swap(tmp);
         }
@@ -173,16 +175,15 @@ public:
     }
 
     void PushBack(Type&& item) {
-        auto pos_item = std::distance(begin(), end());
         if (size_ < capacity_) {
-            auto it_end = begin() + pos_item;
+            auto it_end = begin() + size_;
             *it_end = std::move(item);
         } else {
             auto new_capacity = std::max(size_t(1), capacity_ * 2);
             ArrayPtr<Type> tmp(new_capacity);
             std::move(begin(), end(), tmp.Get());
             items_.swap(tmp);
-            auto it_end = begin() + pos_item;
+            auto it_end = begin() + size_;
             *it_end = std::move(item);
             capacity_ = new_capacity;
         }
@@ -190,6 +191,7 @@ public:
     }
 
     Iterator Insert(ConstIterator pos, const Type& value) {
+        assert(pos >= begin() && pos <= end());
         auto pos_value = std::distance(begin(), Iterator(pos));
         if (size_ < capacity_) {
             std::copy_backward(Iterator(pos), end(), end() + 1);
@@ -210,6 +212,7 @@ public:
     }
 
     Iterator Insert(ConstIterator pos, Type&& value) {
+        assert(pos >= begin() && pos <= end());
         auto pos_value = std::distance(begin(), Iterator(pos));
         if (size_ < capacity_) {
             std::move_backward(Iterator(pos), end(), end() + 1);
@@ -236,7 +239,7 @@ public:
     }
 
     Iterator Erase(ConstIterator pos) {
-        assert(size_ != 0);
+        assert(pos >= begin() && pos < end());
         std::move(Iterator(pos) + 1, end(), Iterator(pos));
         --size_;
         return Iterator(pos);
@@ -249,25 +252,25 @@ public:
     }
 
     Iterator begin() noexcept {
-        return &items_[0];
+        return items_.Get();
     }
     Iterator end() noexcept {
-        return &items_[size_];
+        return items_.Get() + size_;
     }
 
     ConstIterator begin() const noexcept {
-        return &items_[0];
+        return cbegin();
     }
     ConstIterator end() const noexcept {
-        return &items_[size_];
+        return cend();
     }
 
     ConstIterator cbegin() const noexcept {
-        return &items_[0];
+        return items_.Get();
     }
 
     ConstIterator cend() const noexcept {
-        return &items_[size_];
+        return items_.Get() + size_;
     }
 
     SimpleVector(ReserveProxyObj capacity_to_reserve) {

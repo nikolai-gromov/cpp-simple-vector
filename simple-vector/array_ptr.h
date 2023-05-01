@@ -31,7 +31,9 @@ public:
     ArrayPtr& operator=(const ArrayPtr&) = delete;
 
     ArrayPtr& operator=(ArrayPtr&& rhs) {
-        raw_ptr_ = std::exchange(rhs.raw_ptr_, nullptr);
+        if (this == &rhs) return *this;
+        raw_ptr_ = rhs.raw_ptr_;
+        rhs.raw_ptr_ = nullptr;
         return *this;
     }
 
@@ -50,10 +52,7 @@ public:
     }
 
     explicit operator bool() const {
-        if (raw_ptr_) {
-            return true;
-        }
-        return false;
+        return (raw_ptr_) ? true : false;
     }
 
     Type* Get() const noexcept {
