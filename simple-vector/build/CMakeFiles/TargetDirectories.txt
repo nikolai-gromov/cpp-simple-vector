@@ -1,0 +1,5 @@
+/home/nikolai/practicum/cpp-simple-vector/simple-vector/build/CMakeFiles/edit_cache.dir
+/home/nikolai/practicum/cpp-simple-vector/simple-vector/build/CMakeFiles/package_source.dir
+/home/nikolai/practicum/cpp-simple-vector/simple-vector/build/CMakeFiles/rebuild_cache.dir
+/home/nikolai/practicum/cpp-simple-vector/simple-vector/build/CMakeFiles/package.dir
+/home/nikolai/practicum/cpp-simple-vector/simple-vector/build/CMakeFiles/simple_vector.dir

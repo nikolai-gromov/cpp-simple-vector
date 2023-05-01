@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/nikolai/practicum/cpp-simple-vector/simple-vector/build",
+  "command": "/usr/bin/g++   -I/home/nikolai/practicum/cpp-simple-vector/simple-vector/.  -g   -std=gnu++17 -o CMakeFiles/simple_vector.dir/main.cpp.o -c /home/nikolai/practicum/cpp-simple-vector/simple-vector/main.cpp",
+  "file": "/home/nikolai/practicum/cpp-simple-vector/simple-vector/main.cpp"
+}
+]
