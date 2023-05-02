@@ -93,12 +93,12 @@ public:
     }
 
     Type& operator[](size_t index) noexcept {
-        assert((!(index < size_)) == false);
+        assert(size_ >= index);
         return items_[index];
     }
 
     const Type& operator[](size_t index) const noexcept {
-        assert((!(index < size_)) == false);
+        assert(size_ >= index);
         return items_[index];
     }
 
@@ -142,12 +142,8 @@ public:
 
     void Resize(size_t new_size) {
         if (size_ == new_size) return;
-        if (size_ > new_size) {
-            for (auto it = &items_[new_size]; it != &items_[size_]; ++it) {
-                *it = Type{};
-            }
-            size_ = new_size;
-        } else {
+
+        if (size_ < new_size && capacity_ < new_size) {
             auto new_capacity = std::max(new_size, capacity_ * 2);
             ArrayPtr<Type> tmp(new_capacity);
             std::move(begin(), end(), tmp.Get());
@@ -157,6 +153,13 @@ public:
             size_ = new_size;
             capacity_ = new_capacity;
             items_.swap(tmp);
+        } else if (size_ < new_size && capacity_ > new_size) {
+            for (auto it = &items_[size_]; it != &items_[new_size]; ++it) {
+                *(it) = std::move(Type{});
+            }
+            size_ = new_size;
+        } else {
+            size_ = new_size;
         }
     }
 
@@ -182,10 +185,10 @@ public:
             auto new_capacity = std::max(size_t(1), capacity_ * 2);
             ArrayPtr<Type> tmp(new_capacity);
             std::move(begin(), end(), tmp.Get());
-            items_.swap(tmp);
-            auto it_end = begin() + size_;
+            auto it_end = tmp.Get() + size_;
             *it_end = std::move(item);
             capacity_ = new_capacity;
+            items_.swap(tmp);
         }
         ++size_;
     }
@@ -195,17 +198,16 @@ public:
         auto pos_value = std::distance(begin(), Iterator(pos));
         if (size_ < capacity_) {
             std::copy_backward(Iterator(pos), end(), end() + 1);
-            auto it_pos = begin() + std::distance(begin(), Iterator(pos));
-            std::fill(it_pos, it_pos + 1, value);
+            items_[pos_value] = value;
         } else {
             auto new_capacity = std::max(size_t(1), capacity_ * 2);
             ArrayPtr<Type> tmp(new_capacity);
             auto it_pos = begin() + pos_value;
             std::copy(begin(), it_pos, tmp.Get());
             std::copy_backward(it_pos, end(), tmp.Get() + (size_ + 1));
-            std::fill(tmp.Get() + pos_value, tmp.Get() + (pos_value + 1), value);
-            items_.swap(tmp);
+            tmp[pos_value] = value;
             capacity_ = new_capacity;
+            items_.swap(tmp);
         }
         ++size_;
         return Iterator{&items_[pos_value]};
@@ -221,13 +223,12 @@ public:
         } else {
             auto new_capacity = std::max(size_t(1), capacity_ * 2);
             ArrayPtr<Type> tmp(new_capacity);
-            auto it_pos = begin() + pos_value;
-            std::move(begin(), it_pos, tmp.Get());
-            std::move_backward(it_pos, end(), tmp.Get() + (size_ + 1));
-            items_.swap(tmp);
+            std::move(begin(), begin() + pos_value, tmp.Get());
+            std::move_backward(begin() + pos_value, end(), tmp.Get() + (size_ + 1));
+            auto it_pos = tmp.Get() + pos_value;
+            *it_pos = std::move(value);
             capacity_ = new_capacity;
-            auto it_pos2 = begin() + pos_value;
-            *it_pos2 = std::move(value);
+            items_.swap(tmp);
         }
         ++size_;
         return Iterator{&items_[pos_value]};

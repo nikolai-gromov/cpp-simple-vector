@@ -32,8 +32,7 @@ public:
 
     ArrayPtr& operator=(ArrayPtr&& rhs) {
         if (this == &rhs) return *this;
-        raw_ptr_ = rhs.raw_ptr_;
-        rhs.raw_ptr_ = nullptr;
+        raw_ptr_ = std::move(rhs.raw_ptr_);
         return *this;
     }
 
@@ -44,15 +43,15 @@ public:
     }
 
     Type& operator[](size_t index) noexcept {
-        return *(raw_ptr_+index);
+        return *(raw_ptr_ + index);
     }
 
     const Type& operator[](size_t index) const noexcept {
-        return *(raw_ptr_+index);
+        return *(raw_ptr_ + index);
     }
 
     explicit operator bool() const {
-        return (raw_ptr_) ? true : false;
+        return *(raw_ptr_ != nullptr);
     }
 
     Type* Get() const noexcept {

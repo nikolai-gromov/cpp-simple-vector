@@ -199,9 +199,9 @@ inline void Test2() {
     }
 
     {
-        SimpleVector<int> v;
-        v.Insert(v.end(), -10);
-        assert(*(v.end() - 1) == -10);
+        SimpleVector<int> v{1, 2, 3, 4};
+        v.Insert(v.begin() + 2, 42);
+        assert((v == SimpleVector<int>{1, 2, 42, 3, 4}));
     }
 
     {
