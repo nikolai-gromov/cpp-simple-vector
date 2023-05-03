@@ -93,12 +93,12 @@ public:
     }
 
     Type& operator[](size_t index) noexcept {
-        assert(size_ >= index);
+        assert(size_ > index);
         return items_[index];
     }
 
     const Type& operator[](size_t index) const noexcept {
-        assert(size_ >= index);
+        assert(size_ > index);
         return items_[index];
     }
 
