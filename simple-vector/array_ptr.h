@@ -32,7 +32,7 @@ public:
 
     ArrayPtr& operator=(ArrayPtr&& rhs) {
         if (this == &rhs) return *this;
-        raw_ptr_ = rhs.raw_ptr_;
+        swap(rhs);
         return *this;
     }
 

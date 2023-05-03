@@ -42,16 +42,16 @@ public:
 
     SimpleVector(size_t size, const Type& value)
         : items_(size),
-          size_(size),
-          capacity_(size)
+          size_{size},
+          capacity_{size}
     {
         std::fill(items_.Get(), items_.Get() + size_, value);
     }
 
     SimpleVector(std::initializer_list<Type> init)
         : items_(init.size()),
-          size_(init.size()),
-          capacity_(init.size())
+          size_{init.size()},
+          capacity_{init.size()}
     {
         std::copy(init.begin(), init.end(), items_.Get());
     }
@@ -65,7 +65,7 @@ public:
     }
 
     SimpleVector(SimpleVector&& other) {
-        this->swap(other);
+        swap(other);
     }
 
     SimpleVector& operator=(const SimpleVector& rhs) {
@@ -76,7 +76,7 @@ public:
             }
             SimpleVector<Type> tmp(rhs.size_);
             std::uninitialized_copy(rhs.begin(), rhs.end(), tmp.begin());
-            this->swap(tmp);
+            swap(tmp);
         }
         return *this;
     }
